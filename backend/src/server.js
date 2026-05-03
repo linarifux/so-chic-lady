@@ -23,6 +23,8 @@ app.use(cors(
       "https://maps.googleapis.com",
       "http://localhost:5173",
       "http://localhost:5000",
+      "https://so-chic-lady.vercel.app",
+      "https://sochiclady.netlify.app"
     ]
   }
 ));
