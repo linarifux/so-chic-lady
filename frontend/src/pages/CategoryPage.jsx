@@ -1,14 +1,16 @@
 import { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { FiSliders, FiChevronDown } from 'react-icons/fi';
-import { PRODUCTS } from '../utils/mockData';
+// 1. Remove the mock data import and import our new hook
+import { useGetProductsQuery } from '../store/slices/productsApiSlice';
 
 const CategoryPage = () => {
   const [sortBy, setSortBy] = useState('newest');
-  // Store selected categories in an array. If empty, show all.
   const [activeCategories, setActiveCategories] = useState([]);
 
-  // Filter categories map for the sidebar
+  // 2. Fetch the live data! RTK Query gives us the data, isLoading, and error variables automatically.
+  const { data: products, isLoading, error } = useGetProductsQuery();
+
   const filterOptions = [
     { id: 'tops', label: 'Hauts & Tuniques' },
     { id: 'dresses', label: 'Robes' },
@@ -24,14 +26,15 @@ const CategoryPage = () => {
     );
   };
 
-  // Derive the displayed products based on selected filters
+  // 3. Update the useMemo to safely handle the data while it is loading
   const displayedProducts = useMemo(() => {
-    let filtered = PRODUCTS;
+    if (!products) return []; // Return empty array if data isn't loaded yet
+
+    let filtered = products;
     if (activeCategories.length > 0) {
-      filtered = PRODUCTS.filter(product => activeCategories.includes(product.category));
+      filtered = products.filter(product => activeCategories.includes(product.category));
     }
     
-    // Sort logic (can be expanded later)
     if (sortBy === 'price-low') {
       filtered = [...filtered].sort((a, b) => a.price - b.price);
     } else if (sortBy === 'price-high') {
@@ -39,11 +42,27 @@ const CategoryPage = () => {
     }
 
     return filtered;
-  }, [activeCategories, sortBy]);
+  }, [activeCategories, sortBy, products]);
+
+  // --- UI FOR LOADING AND ERRORS ---
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#FAFAFA]">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#E5A3B8]"></div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#FAFAFA] text-red-500 font-serif text-xl">
+        Erreur lors du chargement de la collection. Vérifiez que votre serveur est allumé.
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[#FAFAFA] pb-24">
-      
       {/* Category Header */}
       <div className="bg-[#F8C8DC]/20 py-16 text-center border-b border-gray-100 transition-colors duration-500 hover:bg-[#F8C8DC]/30">
         <h1 className="text-4xl md:text-5xl font-serif text-[#333333] mb-4 tracking-wide">La Collection</h1>
@@ -55,7 +74,7 @@ const CategoryPage = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-12">
         <div className="flex flex-col lg:flex-row gap-12">
           
-          {/* Sidebar / Filters (Desktop) */}
+          {/* Sidebar / Filters */}
           <aside className="hidden lg:block w-64 shrink-0 space-y-8">
             <div className="sticky top-28">
               <h3 className="font-serif text-lg text-[#333333] mb-6 flex items-center gap-2">
@@ -96,7 +115,6 @@ const CategoryPage = () => {
                   </span> 
                   <FiChevronDown size={16} className="group-hover:rotate-180 transition-transform duration-300" />
                 </div>
-                {/* Custom Select Dropdown (Visible on hover for simplicity in this example) */}
                 <div className="absolute right-0 top-full mt-2 w-48 bg-white border border-gray-100 shadow-xl rounded-md opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-30 overflow-hidden">
                     <div onClick={() => setSortBy('newest')} className="px-4 py-2 text-sm hover:bg-gray-50 cursor-pointer">Nouveautés</div>
                     <div onClick={() => setSortBy('price-low')} className="px-4 py-2 text-sm hover:bg-gray-50 cursor-pointer">Prix: croissant</div>
@@ -116,7 +134,7 @@ const CategoryPage = () => {
             {/* Product Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-12">
               {displayedProducts.map((product) => (
-                <Link key={product.id} to={`/product/${product.id}`} className="group flex flex-col">
+                <Link key={product._id} to={`/product/${product._id}`} className="group flex flex-col">
                   {/* Image Container */}
                   <div className="relative aspect-[3/4] overflow-hidden bg-gray-100 mb-4 rounded-sm shadow-sm hover:shadow-md transition-shadow duration-300">
                     <img 
@@ -124,11 +142,13 @@ const CategoryPage = () => {
                       alt={product.name} 
                       className="w-full h-full object-cover transition-all duration-700 group-hover:scale-105 group-hover:opacity-0 absolute inset-0 z-10"
                     />
-                    <img 
-                      src={product.hoverImage} 
-                      alt={`${product.name} hover`} 
-                      className="w-full h-full object-cover absolute inset-0 z-0 scale-105"
-                    />
+                    {product.hoverImage && (
+                      <img 
+                        src={product.hoverImage} 
+                        alt={`${product.name} hover`} 
+                        className="w-full h-full object-cover absolute inset-0 z-0 scale-105"
+                      />
+                    )}
                     
                     {/* Out of Stock Badge */}
                     {!product.inStock && (

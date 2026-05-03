@@ -1,0 +1,44 @@
+const products = [
+  {
+    name: 'Tunique à Pois Rétro',
+    price: 45.00,
+    category: 'tops',
+    image: 'https://images.unsplash.com/photo-1551163943-3f6a855d1153?q=80&w=800&auto=format&fit=crop',
+    hoverImage: 'https://images.unsplash.com/photo-1551163943-3f6a855d1153?q=80&w=800&auto=format&fit=crop&sat=-100',
+    description: 'Une magnifique tunique à pois, parfaite pour un look décontracté mais chic. Manches longues et col en V. Tissu léger et respirant.',
+    sizes: ['S', 'M', 'L', 'XL'],
+    inStock: true,
+  },
+  {
+    name: 'Robe d\'Été Bohème',
+    price: 65.00,
+    category: 'dresses',
+    image: 'https://images.unsplash.com/photo-1595777457583-95e059d581b8?q=80&w=800&auto=format&fit=crop',
+    hoverImage: 'https://images.unsplash.com/photo-1612336307429-8a898d10e223?q=80&w=800&auto=format&fit=crop',
+    description: 'Robe longue bohème avec des motifs floraux délicats. Parfaite pour les journées ensoleillées à Pissos.',
+    sizes: ['S', 'M', 'L'],
+    inStock: true,
+  },
+  {
+    name: 'Veste en Jean Classique',
+    price: 55.00,
+    category: 'outerwear',
+    image: 'https://images.unsplash.com/photo-1544441893-675973e31985?q=80&w=800&auto=format&fit=crop',
+    hoverImage: 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=800&auto=format&fit=crop',
+    description: 'L\'indispensable de toute garde-robe. Veste en jean coupe droite, détails usés.',
+    sizes: ['M', 'L', 'XL'],
+    inStock: false,
+  },
+  {
+    name: 'Sac à Main Élégance',
+    price: 89.00,
+    category: 'accessories',
+    image: 'https://images.unsplash.com/photo-1584916201218-f4242ceb4809?q=80&w=800&auto=format&fit=crop',
+    hoverImage: 'https://images.unsplash.com/photo-1591561954557-26941169b49e?q=80&w=800&auto=format&fit=crop',
+    description: 'Sac à main en cuir synthétique haut de gamme. Idéal pour accompagner toutes vos tenues de soirée.',
+    sizes: ['Unique'],
+    inStock: true,
+  }
+];
+
+export default products;
