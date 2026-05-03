@@ -1,0 +1,24 @@
+@import "tailwindcss";
+
+@theme {
+  /* Brand Colors */
+  --color-brand-pink: #F8C8DC;       /* Soft blush pink from the logo */
+  --color-brand-rose: #E5A3B8;       /* Slightly darker rose for hovers */
+  --color-brand-charcoal: #333333;   /* High-end dark text */
+  --color-brand-light: #FAFAFA;      /* Off-white background */
+
+  /* Custom Fonts (Assuming we import these later) */
+  --font-sans: 'Inter', sans-serif;
+  --font-serif: 'Playfair Display', serif; /* For chic headings */
+}
+
+/* Base styles for a clean app */
+body {
+  background-color: var(--color-brand-light);
+  color: var(--color-brand-charcoal);
+  font-family: var(--font-sans);
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-serif);
+}
