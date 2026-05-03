@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { ShoppingBag, Search, Menu, X, Sparkles, User } from 'lucide-react';
 
+import Logo from '../../assets/logo.jpg';
+
 // Define your navigation items here. 
 // Adding a new menu item is now as simple as adding an object to this array.
 const NAV_ITEMS = [
@@ -20,7 +22,7 @@ const Navbar = () => {
   return (
     <nav className="sticky top-0 z-50 w-full bg-[#FAFAFA]/90 backdrop-blur-md border-b border-gray-100 shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-20">
+        <div className="flex justify-between items-center h-30">
           
           {/* Left: Mobile Menu Button */}
           <div className="flex items-center md:hidden">
@@ -36,7 +38,7 @@ const Navbar = () => {
           {/* Center/Left: Logo */}
           <div className="flex-shrink-0 flex items-center justify-center md:justify-start flex-1 md:flex-none">
             <Link to="/" className="text-2xl md:text-3xl font-serif font-bold text-[#333333] tracking-wider hover:opacity-80 transition-opacity">
-              So Chic <span className="text-[#F8C8DC]">Lady</span>
+              <img src={Logo} alt="So Chic Lady Logo" className="h-24 w-auto" />
             </Link>
           </div>
 

@@ -1,37 +1,39 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Navbar from './components/common/Navbar';
+import Footer from './components/common/Footer';
 import HomePage from './pages/HomePage';
+import CategoryPage from './pages/CategoryPage';
+import ProductDetails from './pages/ProductDetails';
+import BrandHistory from './pages/BrandHistory'; // <-- 1. Import the new page
 import NotFoundPage from './pages/NotFoundPage'; 
 import ScrollToTop from './components/common/ScrollToTop'; 
+import RouteScrollRestoration from './components/common/RouteScrollRestoration';
 import AIChatWidget from './components/ai/AIChatWidget';
-import Footer from './components/common/Footer';
 
 function App() {
   return (
     <Router>
+      <RouteScrollRestoration /> 
+      
       <div className="font-sans text-[#333333] antialiased relative min-h-screen flex flex-col">
         <Navbar />
         
-        {/* Main Content Area */}
         <main className="flex-grow">
           <Routes>
             <Route path="/" element={<HomePage />} />
+            <Route path="/categories" element={<CategoryPage />} />
+            <Route path="/product/:id" element={<ProductDetails />} />
             
-            {/* Placeholders for future pages */}
-            <Route path="/categories" element={<div className="p-20 text-center text-2xl font-serif">Collection Page Coming Soon...</div>} />
-            <Route path="/history" element={<div className="p-20 text-center text-2xl font-serif">Brand History Coming Soon...</div>} />
+            {/* 2. Replace the old placeholder with the actual component */}
+            <Route path="/history" element={<BrandHistory />} /> 
             
-            
-            {/* Catch-all 404 Route */}
             <Route path="*" element={<NotFoundPage />} />
           </Routes>
         </main>
-
-        <Footer />
         
-        {/* Global Components */}
         <AIChatWidget />
         <ScrollToTop />
+        <Footer />
       </div>
     </Router>
   );
