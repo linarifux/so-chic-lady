@@ -10,9 +10,9 @@ import Logo from '../../assets/logo.jpg';
 
 // Main Navigation Items
 const NAV_ITEMS = [
-  { id: 'new', label: 'Nouveautés', path: '/categories', highlight: true },
+  { id: 'new', label: 'Nouveautés', path: '/new' },
   { id: 'collection', label: 'Prêt-à-porter', path: '/categories' },
-  { id: 'accessories', label: 'Accessoires', path: '/categories?filter=accessories' },
+  { id: 'accessories', label: 'Accessoires', path: '/accessories' },
   { id: 'history', label: 'Notre Histoire', path: '/history' },
 ];
 
@@ -20,8 +20,8 @@ const NAV_ITEMS = [
 const STORY_CATEGORIES = [
   { id: 'dresses', label: 'Robes Tendance', image: 'https://images.unsplash.com/photo-1595777457583-95e059d581b8?q=80&w=200&auto=format&fit=crop' },
   { id: 'tops', label: 'Les Essentiels', image: 'https://images.unsplash.com/photo-1551163943-3f6a855d1153?q=80&w=200&auto=format&fit=crop' },
-  { id: 'outerwear', label: 'Vestes', image: 'https://images.unsplash.com/photo-1551028719-01c1eb562145?q=80&w=200&auto=format&fit=crop' },
-  { id: 'sale', label: 'Petits Prix', image: 'https://images.unsplash.com/photo-1434389678869-ae408358488c?q=80&w=200&auto=format&fit=crop' },
+  { id: 'outerwear', label: 'Vestes', image: 'https://geox-cdn.thron.com/delivery/public/thumbnail/geox/EC_W6520ET3340F5263_105/crzcqo/std/1024x1024/EC_AB105176_105.jpg' },
+  { id: 'sale', label: 'Petits Prix', image: 'https://www.parfois.com/dw/image/v2/BBKR_PRD/on/demandware.static/-/Sites-parfois-master-catalog/default/dwb05f1261/images/hi-res/261/64/245007_BG_1y.jpg?sw=1000' },
 ];
 
 const Navbar = () => {
@@ -29,12 +29,10 @@ const Navbar = () => {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false); 
   const [searchTerm, setSearchTerm] = useState('');
-  const [isScrolled, setIsScrolled] = useState(false);
   
   const location = useLocation();
   const navigate = useNavigate();
 
-  // --- REDUX HOOKS ---
   const { cartTotalQuantity } = useSelector((state) => state.cart);
   const { userInfo } = useSelector((state) => state.auth); 
   const dispatch = useDispatch();
@@ -54,17 +52,6 @@ const Navbar = () => {
     navigate('/login');
   };
 
-  // --- OPTIMIZED SCROLL LISTENER ---
-  useEffect(() => {
-    const handleScroll = () => {
-      // Small 30px threshold prevents accidental trigger on a tiny mouse bump
-      setIsScrolled(window.scrollY > 30);
-    };
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
-  // Close search and lock body scroll
   useEffect(() => {
     if (isSearchOpen) document.body.style.overflow = 'hidden';
     else {
@@ -82,71 +69,55 @@ const Navbar = () => {
         {`
           .hide-scrollbar::-webkit-scrollbar { display: none; }
           .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-          /* Optimized bezier curve for buttery smooth height/layout changes */
-          .header-transition {
-            transition: all 0.5s cubic-bezier(0.25, 1, 0.5, 1);
-          }
         `}
       </style>
 
-      {/* --- SPACER (CRUCIAL FOR PREVENTING SHAKE) --- */}
-      {/* Takes up the exact space of the unscrolled header to maintain layout flow */}
-      <div className="w-full shrink-0 h-[246px] md:h-[330px]" aria-hidden="true" />
-
       {/* --- SEARCH OVERLAY --- */}
-      <div className={`fixed inset-0 bg-white/95 backdrop-blur-md z-[100] transition-all duration-500 ease-in-out ${isSearchOpen ? 'opacity-100 visible' : 'opacity-0 invisible'}`}>
-        <div className="max-w-4xl mx-auto px-4 pt-20 h-full flex flex-col relative">
-          <button onClick={closeSearch} className="absolute top-8 right-4 md:right-0 text-gray-400 hover:text-[#333333] transition-colors hover:rotate-90 duration-300">
-            <X size={32} />
+      <div className={`fixed inset-0 bg-white/95 backdrop-blur-sm z-[100] transition-opacity duration-300 ${isSearchOpen ? 'opacity-100 visible' : 'opacity-0 invisible'}`}>
+        <div className="max-w-5xl mx-auto px-4 pt-16 h-full flex flex-col relative">
+          <button onClick={closeSearch} className="absolute top-6 right-4 md:right-0 text-gray-500 hover:text-black transition-colors">
+            <X size={28} strokeWidth={1.5} />
           </button>
 
-          <div className="relative mt-10 md:mt-20 border-b-2 border-gray-200 pb-4 group focus-within:border-[#E5A3B8] transition-colors duration-300">
-            <Search size={28} className="absolute left-0 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-[#E5A3B8] transition-colors" />
+          <div className="relative mt-12 border-b border-gray-300 pb-3">
+            <Search size={24} strokeWidth={1.5} className="absolute left-0 top-1/2 -translate-y-1/2 text-gray-400" />
             <input 
               type="text"
               autoFocus={isSearchOpen}
-              placeholder="Rechercher une pièce, une couleur..."
+              placeholder="Que recherchez-vous ?"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full bg-transparent pl-12 pr-4 text-2xl md:text-5xl font-serif text-[#333333] placeholder-gray-300 focus:outline-none"
+              className="w-full bg-transparent pl-10 pr-4 text-xl md:text-3xl font-serif text-black placeholder-gray-300 focus:outline-none"
             />
           </div>
 
-          <div className="flex-1 overflow-y-auto py-10 hide-scrollbar">
-            {searchTerm.length > 0 && (
+          <div className="flex-1 overflow-y-auto py-8 hide-scrollbar">
+            {searchTerm.length > 0 ? (
               <div>
-                <h3 className="text-sm font-medium text-gray-400 uppercase tracking-widest mb-6">Résultats ({searchResults.length})</h3>
-                {searchResults.length > 0 ? (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
-                    {searchResults.slice(0, 6).map((product) => (
-                      <Link key={product._id || product.id} to={`/product/${product._id || product.id}`} onClick={closeSearch} className="group flex items-start gap-4">
-                        <div className="w-20 h-28 bg-gray-100 rounded-sm overflow-hidden shrink-0 relative">
-                          <img src={product.image} alt={product.name} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
-                        </div>
-                        <div className="flex flex-col py-1">
-                          <h4 className="text-[#333333] font-medium text-sm group-hover:text-[#E5A3B8] transition-colors leading-tight mb-1">{product.name}</h4>
-                          <p className="text-gray-500 text-sm mb-2">{product.price.toFixed(2)} €</p>
-                          <span className="text-xs text-[#333333] flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity transform -translate-x-2 group-hover:translate-x-0 duration-300">
-                            Voir le produit <ArrowRight size={12} />
-                          </span>
-                        </div>
-                      </Link>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="text-center py-10">
-                    <p className="text-2xl font-serif text-gray-400">Aucun résultat trouvé pour "{searchTerm}"</p>
-                  </div>
+                <h3 className="text-[10px] font-medium text-gray-400 uppercase tracking-[0.2em] mb-6">Résultats</h3>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+                  {searchResults.slice(0, 8).map((product) => (
+                    <Link key={product._id || product.id} to={`/product/${product._id || product.id}`} onClick={closeSearch} className="group flex flex-col gap-3">
+                      <div className="w-full aspect-[3/4] bg-gray-50 overflow-hidden">
+                        <img src={product.image} alt={product.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                      </div>
+                      <div className="flex flex-col">
+                        <h4 className="text-black text-xs font-medium uppercase tracking-wide truncate">{product.name}</h4>
+                        <p className="text-gray-500 text-xs mt-1">{product.price.toFixed(2)} €</p>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+                {searchResults.length === 0 && (
+                  <p className="text-gray-500 text-sm mt-4">Aucun résultat trouvé.</p>
                 )}
               </div>
-            )}
-            
-            {searchTerm.length === 0 && (
+            ) : (
               <div>
-                 <h3 className="text-sm font-medium text-gray-400 uppercase tracking-widest mb-6">Recherches Populaires</h3>
-                 <div className="flex flex-wrap gap-3">
+                 <h3 className="text-[10px] font-medium text-gray-400 uppercase tracking-[0.2em] mb-6">Recherches Suggerées</h3>
+                 <div className="flex flex-wrap gap-2">
                    {['Robes d\'été', 'Veste en Jean', 'Sacs à main', 'Nouveautés'].map((tag) => (
-                     <button key={tag} onClick={() => setSearchTerm(tag)} className="px-4 py-2 bg-gray-50 text-gray-600 rounded-full text-sm hover:bg-[#F8C8DC]/30 hover:text-[#333333] transition-colors">{tag}</button>
+                     <button key={tag} onClick={() => setSearchTerm(tag)} className="px-4 py-2 border border-gray-200 text-gray-600 text-xs uppercase tracking-wider hover:border-black hover:text-black transition-colors">{tag}</button>
                    ))}
                  </div>
               </div>
@@ -155,201 +126,185 @@ const Navbar = () => {
         </div>
       </div>
 
-      {/* --- FIXED HEADER (No longer sticky to prevent Layout Thrashing) --- */}
-      <header className={`fixed top-0 z-50 w-full flex flex-col bg-white header-transition ${isScrolled ? 'shadow-md' : 'shadow-sm border-b border-gray-100'}`}>
+      {/* --- MAIN HEADER --- */}
+      <header className="sticky top-0 z-50 w-full bg-white border-b border-gray-200">
         
-        {/* --- 1. ANNOUNCEMENT BAR --- */}
-        <div className={`bg-[#333333] text-white text-[10px] sm:text-xs font-medium tracking-[0.2em] uppercase flex items-center justify-center gap-3 w-full header-transition origin-top overflow-hidden
-          ${isScrolled ? 'h-0 opacity-0 py-0' : 'h-[40px] opacity-100 py-2'}
-        `}>
-          <span>✨ Livraison offerte dès 100€ d'achat</span>
-          <span className="hidden md:inline text-[#E5A3B8]">•</span>
-          <span className="hidden md:inline">Retours gratuits sous 14 jours</span>
+        {/* Top Announcement Bar */}
+        <div className="bg-black text-white text-[9px] font-medium tracking-[0.2em] uppercase flex items-center justify-center gap-2 py-2">
+          <span>Livraison offerte dès 100€ d'achat</span>
+          <span className="hidden sm:inline opacity-50">|</span>
+          <span className="hidden sm:inline">Retours gratuits sous 14 jours</span>
         </div>
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full relative">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           
-          {/* --- 2. TOP BAR (Logo & Icons) --- */}
-          <div className={`flex justify-between items-center relative header-transition ${isScrolled ? 'h-[64px]' : 'h-[96px] md:h-[112px]'}`}>
+          {/* Main Nav Row */}
+          <div className="flex justify-between items-center h-16 md:h-20 relative">
             
-            {/* Left: Mobile Menu & AI Stylist */}
-            <div className="flex items-center flex-1 z-20">
-              <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="md:hidden text-[#333333] hover:text-[#E5A3B8] transition-colors">
-                {isMobileMenuOpen ? <X size={26} /> : <Menu size={26} />}
+            {/* LEFT: Desktop Links & Mobile Menu Button */}
+            <div className="flex-1 flex items-center">
+              {/* Mobile Menu Icon */}
+              <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="md:hidden text-black p-2 -ml-2">
+                {isMobileMenuOpen ? <X size={24} strokeWidth={1.5} /> : <Menu size={24} strokeWidth={1.5} />}
               </button>
-              
-              <button className={`hidden md:flex items-center space-x-2 text-sm bg-gray-50 text-[#333333] px-4 py-2 rounded-full hover:bg-[#F8C8DC]/20 hover:text-[#E5A3B8] font-medium group header-transition
-                ${isScrolled ? 'opacity-0 invisible -translate-x-4' : 'opacity-100 visible translate-x-0'}
-              `}>
-                <Sparkles size={16} className="group-hover:rotate-12 transition-transform" />
-                <span className="uppercase tracking-widest text-[10px]">AI Stylist</span>
-              </button>
+
+              {/* Desktop Links */}
+              <nav className="hidden md:flex space-x-6 lg:space-x-8">
+                {NAV_ITEMS.map((item) => (
+                  <Link 
+                    key={item.id} 
+                    to={item.path} 
+                    className={`text-[11px] uppercase tracking-[0.15em] transition-colors relative group py-2
+                      ${isActive(item.path) ? 'text-black' : 'text-gray-500 hover:text-black'}
+                    `}
+                  >
+                    {item.label}
+                    <span className={`absolute bottom-0 left-0 h-[1px] bg-black transition-all duration-300 ${isActive(item.path) ? 'w-full' : 'w-0 group-hover:w-full'}`}></span>
+                  </Link>
+                ))}
+              </nav>
             </div>
 
-            {/* Center: Interactive Logo */}
-            <div className={`absolute top-1/2 -translate-y-1/2 z-20 origin-center md:origin-left header-transition
-              ${isScrolled 
-                ? 'md:left-0 md:translate-x-0 md:scale-[0.65] left-1/2 -translate-x-1/2 scale-[0.80]' 
-                : 'left-1/2 -translate-x-1/2 scale-100'
-              }`}
-            >
-              <Link to="/" className="hover:opacity-80 transition-opacity block">
-                <img src={Logo} alt="So Chic Lady Logo" className="h-14 md:h-20 w-auto object-contain" />
+            {/* CENTER: Logo */}
+            <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
+              <Link to="/" className="block hover:opacity-70 transition-opacity">
+                <img src={Logo} alt="So Chic Lady" className="h-10 md:h-14 w-auto object-contain" />
               </Link>
             </div>
 
-            {/* DYNAMIC CENTER: Nav Menu (Fades in when scrolled) */}
-            <div className={`hidden md:flex absolute left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2 space-x-8 z-10 header-transition
-              ${isScrolled ? 'opacity-100 translate-y-0 visible' : 'opacity-0 translate-y-4 invisible'}
-            `}>
-              {NAV_ITEMS.map((item) => (
-                <Link key={`scrolled-${item.id}`} to={item.path} className={`text-xs font-bold uppercase tracking-widest transition-colors duration-300 ${item.highlight ? 'text-[#E5A3B8]' : 'text-[#333333] hover:text-[#E5A3B8]'}`}>
-                  {item.label}
-                </Link>
-              ))}
-            </div>
-
-            {/* Right: Icons with Text */}
-            <div className="flex items-center justify-end flex-1 space-x-6 md:space-x-8 text-[#333333] z-20">
+            {/* RIGHT: Icons */}
+            <div className="flex-1 flex items-center justify-end space-x-4 md:space-x-6">
               
+              {/* AI Stylist */}
+              <button className="hidden sm:flex items-center gap-1.5 text-gray-500 hover:text-[#E5A3B8] transition-colors">
+                <Sparkles size={16} strokeWidth={1.5} />
+                <span className="text-[10px] uppercase tracking-widest mt-0.5">AI Stylist</span>
+              </button>
+
               {/* Search */}
-              <button onClick={() => setIsSearchOpen(true)} className="flex flex-col items-center group">
-                <Search size={22} className="group-hover:text-[#E5A3B8] transition-colors" strokeWidth={1.5} />
-                {/* using whitespace-nowrap and exact height prevents text jitter */}
-                <span className={`hidden md:block text-[9px] uppercase tracking-widest text-gray-500 group-hover:text-[#333333] header-transition origin-top overflow-hidden whitespace-nowrap
-                  ${isScrolled ? 'h-0 opacity-0 mt-0' : 'h-[16px] opacity-100 mt-1'}
-                `}>Recherche</span>
+              <button onClick={() => setIsSearchOpen(true)} className="text-black hover:opacity-60 transition-opacity p-1">
+                <Search size={20} strokeWidth={1.5} />
               </button>
               
-              {/* Account Dropdown */}
+              {/* Account */}
               <div className="relative" onMouseEnter={() => setIsProfileMenuOpen(true)} onMouseLeave={() => setIsProfileMenuOpen(false)}>
                 {userInfo ? (
-                  <div className="flex flex-col items-center cursor-pointer group">
-                    <User size={22} className="group-hover:text-[#E5A3B8] transition-colors" strokeWidth={1.5} />
-                    <span className={`hidden md:block text-[9px] uppercase tracking-widest text-gray-500 group-hover:text-[#333333] header-transition origin-top overflow-hidden whitespace-nowrap
-                      ${isScrolled ? 'h-0 opacity-0 mt-0' : 'h-[16px] opacity-100 mt-1'}
-                    `}>Compte</span>
+                  <div className="text-black hover:opacity-60 transition-opacity p-1 cursor-pointer">
+                    <User size={20} strokeWidth={1.5} />
                   </div>
                 ) : (
-                  <Link to="/login" className="flex flex-col items-center group">
-                    <User size={22} className="group-hover:text-[#E5A3B8] transition-colors" strokeWidth={1.5} />
-                    <span className={`hidden md:block text-[9px] uppercase tracking-widest text-gray-500 group-hover:text-[#333333] header-transition origin-top overflow-hidden whitespace-nowrap
-                      ${isScrolled ? 'h-0 opacity-0 mt-0' : 'h-[16px] opacity-100 mt-1'}
-                    `}>Compte</span>
+                  <Link to="/login" className="text-black hover:opacity-60 transition-opacity p-1 block">
+                    <User size={20} strokeWidth={1.5} />
                   </Link>
                 )}
 
+                {/* Account Dropdown */}
                 {isProfileMenuOpen && userInfo && (
-                  <div className="absolute right-0 top-full mt-4 w-56 bg-white border border-gray-100 shadow-2xl rounded-sm overflow-hidden z-50">
-                    <div className="px-4 py-4 border-b border-gray-50 bg-[#FAFAFA]">
-                      <p className="text-sm font-medium text-[#333333] truncate">{userInfo.name}</p>
-                      <p className="text-xs text-gray-500 truncate">{userInfo.email}</p>
+                  <div className="absolute right-0 top-full mt-2 w-48 bg-white border border-gray-200 shadow-lg rounded-sm overflow-hidden z-50">
+                    <div className="px-4 py-3 border-b border-gray-100 bg-gray-50">
+                      <p className="text-xs font-medium text-black truncate uppercase tracking-wider">{userInfo.name}</p>
                     </div>
-                    <div className="py-2">
-                      <Link to="/profile" className="block px-4 py-2 text-sm text-gray-600 hover:bg-[#F8C8DC]/20 hover:text-[#E5A3B8]">Mon Profil</Link>
-                      <Link to="/orders" className="block px-4 py-2 text-sm text-gray-600 hover:bg-[#F8C8DC]/20 hover:text-[#E5A3B8]">Mes Commandes</Link>
+                    <div className="py-1">
+                      <Link to="/profile" className="block px-4 py-2 text-xs text-gray-600 hover:bg-gray-50 hover:text-black">Mon Profil</Link>
+                      <Link to="/orders" className="block px-4 py-2 text-xs text-gray-600 hover:bg-gray-50 hover:text-black">Mes Commandes</Link>
                       {userInfo.isAdmin && (
-                        <Link to="/admin/dashboard" className="block px-4 py-2 text-sm font-medium text-[#333333] hover:bg-[#E5A3B8] hover:text-white border-t border-gray-50 mt-1 pt-3">Dashboard Admin</Link>
+                        <Link to="/admin/dashboard" className="block px-4 py-2 text-xs text-black font-medium hover:bg-gray-50 border-t border-gray-100 mt-1 pt-2">Espace Admin</Link>
                       )}
                     </div>
-                    <button onClick={logoutHandler} className="block w-full text-left px-4 py-3 text-sm text-red-500 hover:bg-red-50 border-t border-gray-100">Se déconnecter</button>
+                    <button onClick={logoutHandler} className="block w-full text-left px-4 py-3 text-xs text-red-500 hover:bg-gray-50 border-t border-gray-100">Déconnexion</button>
                   </div>
                 )}
               </div>
               
               {/* Cart */}
-              <button onClick={() => dispatch(toggleCart())} className="flex flex-col items-center relative group">
-                <div className="relative">
-                  <ShoppingBag size={22} className="group-hover:text-[#E5A3B8] transition-colors" strokeWidth={1.5} />
-                  <span className="absolute -top-1.5 -right-2 bg-[#E5A3B8] text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
-                    {cartTotalQuantity || 0}
-                  </span>
-                </div>
-                <span className={`hidden md:block text-[9px] uppercase tracking-widest text-gray-500 group-hover:text-[#333333] header-transition origin-top overflow-hidden whitespace-nowrap
-                  ${isScrolled ? 'h-0 opacity-0 mt-0' : 'h-[16px] opacity-100 mt-1'}
-                `}>Panier</span>
+              <button onClick={() => dispatch(toggleCart())} className="text-black hover:opacity-60 transition-opacity p-1 relative">
+                <ShoppingBag size={20} strokeWidth={1.5} />
+                <span className="absolute -top-0.5 -right-1 bg-black text-white text-[9px] w-3.5 h-3.5 rounded-full flex items-center justify-center">
+                  {cartTotalQuantity || 0}
+                </span>
               </button>
             </div>
+            
           </div>
-
-          {/* --- 3. MIDDLE BAR (Navigation Links) --- */}
-          <div className={`hidden md:flex justify-center items-center space-x-10 header-transition origin-top overflow-hidden
-            ${isScrolled ? 'h-0 opacity-0' : 'h-[48px] opacity-100'}
-          `}>
-            {NAV_ITEMS.map((item) => (
-              <Link 
-                key={item.id} 
-                to={item.path} 
-                className={`text-sm font-bold uppercase tracking-widest transition-colors duration-300 ${
-                  item.highlight ? 'text-[#E5A3B8] hover:text-[#333333]' : 'text-[#333333] hover:text-[#E5A3B8]'
-                }`}
-              >
-                {item.label}
-              </Link>
-            ))}
-            <Link to="/categories" className="text-gray-400 hover:text-[#333333] tracking-widest font-bold">...</Link>
-          </div>
-
-          {/* --- 4. BOTTOM BAR (Stories) --- */}
-          <div className={`flex overflow-x-auto hide-scrollbar justify-start md:justify-center gap-6 md:gap-10 snap-x header-transition origin-top overflow-hidden
-            ${isScrolled ? 'h-0 opacity-0 pt-0 pb-0' : 'h-[110px] md:h-[130px] opacity-100 pt-2 pb-6'}
-          `}>
-            {STORY_CATEGORIES.map(category => (
-              <Link key={category.id} to={`/categories?filter=${category.id}`} className="flex flex-col items-center gap-3 group shrink-0 snap-start cursor-pointer">
-                <div className="w-[60px] h-[60px] md:w-[68px] md:h-[68px] rounded-full p-[2px] bg-gradient-to-tr from-gray-200 to-gray-300 group-hover:from-[#F8C8DC] group-hover:to-[#E5A3B8] transition-all duration-300 shadow-sm">
-                  <div className="w-full h-full rounded-full border-[3px] border-white overflow-hidden bg-white">
-                    <img src={category.image} alt={category.label} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
-                  </div>
-                </div>
-                <span className="text-[9px] md:text-[10px] font-bold uppercase tracking-widest text-[#333333] group-hover:text-[#E5A3B8] transition-colors text-center w-20 md:w-24 leading-tight">
-                  {category.label}
-                </span>
-              </Link>
-            ))}
-          </div>
-
         </div>
 
-        {/* --- MOBILE MENU DROPDOWN --- */}
-        <div className={`md:hidden absolute top-full left-0 w-full bg-white border-b border-gray-100 shadow-lg transition-all duration-300 ease-in-out overflow-hidden ${isMobileMenuOpen ? 'max-h-screen opacity-100 visible' : 'max-h-0 opacity-0 invisible'}`}>
-          <div className="px-4 pt-4 pb-8 space-y-2">
-            
-            <div className="border-b border-gray-100 pb-4 mb-4">
-              {userInfo ? (
-                <div>
-                  <p className="text-sm font-bold uppercase tracking-widest text-[#333333]">Bonjour, {userInfo.name}</p>
-                  <div className="flex flex-col mt-3 space-y-3">
-                    <Link to="/profile" onClick={() => setIsMobileMenuOpen(false)} className="text-sm font-medium text-gray-600 hover:text-[#E5A3B8]">Mon Profil</Link>
-                    {userInfo.isAdmin && <Link to="/admin/dashboard" onClick={() => setIsMobileMenuOpen(false)} className="text-sm font-bold text-[#E5A3B8]">Dashboard Admin</Link>}
-                    <button onClick={logoutHandler} className="text-sm font-medium text-left text-red-500">Se déconnecter</button>
+        {/* --- BOTTOM ROW: Minimalist Story Categories --- */}
+        <div className="border-t border-gray-100 bg-white hidden md:block">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex justify-center gap-12 py-3 overflow-x-auto hide-scrollbar">
+              {STORY_CATEGORIES.map(category => (
+                <Link key={category.id} to={`/categories?filter=${category.id}`} className="flex items-center gap-3 group shrink-0">
+                  <div className="w-10 h-10 rounded-full border border-gray-200 p-0.5 group-hover:border-black transition-colors">
+                    <img src={category.image} alt={category.label} className="w-full h-full rounded-full object-cover" />
                   </div>
-                </div>
-              ) : (
-                <Link to="/login" onClick={() => setIsMobileMenuOpen(false)} className="text-sm font-bold uppercase tracking-widest text-[#E5A3B8] flex items-center gap-2">
-                  <User size={18} /> Se connecter / Créer un compte
+                  <span className="text-[10px] uppercase tracking-widest text-gray-500 group-hover:text-black transition-colors">
+                    {category.label}
+                  </span>
                 </Link>
-              )}
+              ))}
             </div>
+          </div>
+        </div>
+      </header>
 
+      {/* --- MOBILE MENU DROPDOWN --- */}
+      <div className={`fixed inset-0 z-40 bg-black/20 backdrop-blur-sm transition-opacity duration-300 md:hidden ${isMobileMenuOpen ? 'opacity-100 visible' : 'opacity-0 invisible'}`} onClick={() => setIsMobileMenuOpen(false)}>
+        {/* Clicking outside closes the menu */}
+      </div>
+
+      <div className={`fixed top-0 left-0 h-full w-[80%] max-w-sm bg-white z-50 shadow-xl transition-transform duration-300 ease-in-out md:hidden flex flex-col ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+        <div className="p-4 flex justify-between items-center border-b border-gray-100">
+          <span className="text-xs font-bold uppercase tracking-widest">Menu</span>
+          <button onClick={() => setIsMobileMenuOpen(false)} className="p-2 text-gray-500"><X size={20} strokeWidth={1.5} /></button>
+        </div>
+
+        <div className="flex-1 overflow-y-auto py-4">
+          <nav className="flex flex-col space-y-1 px-4">
             {NAV_ITEMS.map((item) => (
               <Link 
                 key={item.id}
                 to={item.path} 
                 onClick={() => setIsMobileMenuOpen(false)}
-                className={`block py-3 font-bold uppercase tracking-widest border-b border-gray-50 transition-colors ${
-                  item.highlight ? 'text-[#E5A3B8]' : 'text-[#333333] hover:text-[#E5A3B8]'
-                }`}
+                className="py-3 text-sm uppercase tracking-widest border-b border-gray-50 text-gray-800"
               >
                 {item.label}
               </Link>
             ))}
-            <button className="flex w-full items-center space-x-3 py-4 text-[#E5A3B8] font-bold uppercase tracking-widest transition-opacity mt-4 bg-gray-50 justify-center rounded-sm">
-              <Sparkles size={18} />
-              <span>Demander à l'IA Styliste</span>
-            </button>
+          </nav>
+
+          <div className="px-4 mt-8">
+            <p className="text-[10px] font-medium text-gray-400 uppercase tracking-widest mb-4">Découvrir</p>
+            <div className="flex flex-wrap gap-4">
+               {STORY_CATEGORIES.map(category => (
+                <Link key={`mob-${category.id}`} to={`/categories?filter=${category.id}`} onClick={() => setIsMobileMenuOpen(false)} className="flex flex-col items-center gap-2">
+                  <div className="w-14 h-14 rounded-full border border-gray-200 p-0.5">
+                    <img src={category.image} alt={category.label} className="w-full h-full rounded-full object-cover" />
+                  </div>
+                  <span className="text-[9px] uppercase tracking-wider text-gray-600 text-center w-16 truncate">{category.label}</span>
+                </Link>
+              ))}
+            </div>
           </div>
         </div>
-      </header>
+
+        <div className="p-4 border-t border-gray-100 bg-gray-50 space-y-4">
+          <button className="flex w-full items-center justify-center space-x-2 py-3 border border-black text-black text-xs uppercase tracking-widest hover:bg-black hover:text-white transition-colors">
+            <Sparkles size={14} />
+            <span>IA Styliste</span>
+          </button>
+          
+          {userInfo ? (
+             <div className="flex justify-between items-center">
+               <Link to="/profile" onClick={() => setIsMobileMenuOpen(false)} className="text-xs font-medium uppercase tracking-wider">Mon Compte</Link>
+               <button onClick={logoutHandler} className="text-xs text-red-500 uppercase tracking-wider">Déconnexion</button>
+             </div>
+          ) : (
+            <Link to="/login" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center gap-2 text-xs font-medium uppercase tracking-wider">
+               <User size={16} /> Se connecter
+            </Link>
+          )}
+        </div>
+      </div>
     </>
   );
 };
