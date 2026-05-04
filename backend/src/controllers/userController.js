@@ -7,7 +7,7 @@ import jwt from 'jsonwebtoken';
 export const authUser = async (req, res, next) => {
   try {
     const { email, password } = req.body;
-
+    
     // Find the user by email
     const user = await User.findOne({ email });
 
