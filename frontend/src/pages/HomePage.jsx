@@ -3,9 +3,10 @@ import TrustBadges from '../components/home/TrustBadges';
 import BrandsSection from '../components/home/BrandsSection';
 import TrendingNow from '../components/home/TrendingNow';
 import FeaturedCategories from '../components/home/FeaturedCategories';
-import AiStylistPromo from '../components/home/AiStylistPromo'; // <-- New custom section
+import AiStylistPromo from '../components/home/AiStylistPromo';
 import BrandHistorySection from '../components/home/BrandHistorySection';
-import Testimonials from '../components/home/Testimonials'; // <-- New custom section
+import Testimonials from '../components/home/Testimonials';
+import FAQ from '../components/home/FAQ';
 import InstagramFeed from '../components/home/InstagramFeed'; 
 import StoreLocation from '../components/home/StoreLocation';
 import Newsletter from '../components/home/Newsletter';
@@ -16,15 +17,12 @@ const HomePage = () => {
       <HeroSection />
       <TrustBadges />
       <BrandsSection />
-      
-      {/* Dynamic Inventory */}
       <TrendingNow />
-      
       <FeaturedCategories />
       <AiStylistPromo />
-      
       <BrandHistorySection />
       <Testimonials />
+      <FAQ /> 
       <InstagramFeed /> 
       <StoreLocation />
       <Newsletter />

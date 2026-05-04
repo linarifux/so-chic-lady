@@ -2,14 +2,42 @@
 
 @theme {
   /* Brand Colors */
-  --color-brand-pink: #F8C8DC;       /* Soft blush pink from the logo */
-  --color-brand-rose: #E5A3B8;       /* Slightly darker rose for hovers */
-  --color-brand-charcoal: #333333;   /* High-end dark text */
-  --color-brand-light: #FAFAFA;      /* Off-white background */
+  --color-brand-pink: #F8C8DC;      /* Soft blush pink from the logo */
+  --color-brand-rose: #E5A3B8;      /* Slightly darker rose for hovers */
+  --color-brand-charcoal: #333333;  /* High-end dark text */
+  --color-brand-light: #FAFAFA;     /* Off-white background */
 
-  /* Custom Fonts (Assuming we import these later) */
+  /* Custom Fonts */
   --font-sans: 'Inter', sans-serif;
   --font-serif: 'Playfair Display', serif; /* For chic headings */
+
+  /* Global Animations (Used in Hero & Brands sections) */
+  --animate-float-slow: float-slow 6s ease-in-out infinite;
+  --animate-float-fast: float-fast 4s ease-in-out infinite;
+  --animate-spin-slow: spin-slow 12s linear infinite;
+  --animate-marquee-left: scroll-left 40s linear infinite;
+  --animate-marquee-right: scroll-right 40s linear infinite;
+
+  @keyframes float-slow {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-20px); }
+  }
+  @keyframes float-fast {
+    0%, 100% { transform: translateY(0px) rotate(2deg); }
+    50% { transform: translateY(-15px) rotate(-1deg); }
+  }
+  @keyframes spin-slow {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+  @keyframes scroll-left {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+  }
+  @keyframes scroll-right {
+    0% { transform: translateX(-50%); }
+    100% { transform: translateX(0); }
+  }
 }
 
 /* Base styles for a clean app */
@@ -21,4 +49,32 @@ body {
 
 h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-serif);
+}
+
+/* Custom Utilities */
+@layer utilities {
+  
+  /* 1. Hide scrollbar for the Instagram Story row */
+  .hide-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .hide-scrollbar {
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+  }
+
+  /* 2. Butter-smooth header transitions to prevent shaking */
+  .header-transition {
+    transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+  }
+
+  /* 3. Text outline for the Brands Marquee */
+  .text-outline {
+    -webkit-text-stroke: 1px #d1d5db; /* Tailwind gray-300 */
+    color: transparent;
+  }
+  .text-outline:hover {
+    -webkit-text-stroke: 1px #333333;
+    color: #333333;
+  }
 }
