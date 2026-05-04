@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
-import { Sparkles, X, Send, User } from 'lucide-react';
+import { Sparkles, X, Send } from 'lucide-react';
+import { useSendChatMessageMutation } from '../../store/slices/aiApiSlice';
 
 const AIChatWidget = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -9,6 +10,9 @@ const AIChatWidget = () => {
   const [inputMessage, setInputMessage] = useState('');
   const messagesEndRef = useRef(null);
 
+  // --- REDUX RTK QUERY MUTATION ---
+  const [sendMessage, { isLoading }] = useSendChatMessageMutation();
+
   // Auto-scroll to bottom of chat
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -16,23 +20,33 @@ const AIChatWidget = () => {
 
   useEffect(() => {
     scrollToBottom();
-  }, [messages]);
+  }, [messages, isLoading]);
 
-  const handleSendMessage = (e) => {
+  const handleSendMessage = async (e) => {
     e.preventDefault();
     if (!inputMessage.trim()) return;
 
-    // Add user message
-    setMessages((prev) => [...prev, { role: 'user', content: inputMessage }]);
+    const userText = inputMessage;
+    
+    // Add user message to UI immediately
+    setMessages((prev) => [...prev, { role: 'user', content: userText }]);
     setInputMessage('');
 
-    // Placeholder for backend API call
-    setTimeout(() => {
+    try {
+      // Call backend endpoint using Redux RTK Query (.unwrap() extracts the payload)
+      const data = await sendMessage({ message: userText }).unwrap();
+
       setMessages((prev) => [
         ...prev,
-        { role: 'ai', content: "C'est noté ! Je recherche dans notre collection les meilleures pièces pour vous..." }
+        { role: 'ai', content: data.reply }
       ]);
-    }, 1000);
+    } catch (error) {
+      console.error('AI Chat Error:', error);
+      setMessages((prev) => [
+        ...prev,
+        { role: 'ai', content: "Oups, un petit souci de connexion. Réessayez dans un instant ! ✨" }
+      ]);
+    }
   };
 
   return (
@@ -41,65 +55,81 @@ const AIChatWidget = () => {
       {!isOpen && (
         <button
           onClick={() => setIsOpen(true)}
-          className="fixed bottom-24 right-8 z-50 p-4 bg-gradient-to-r from-[#F8C8DC] to-[#E5A3B8] text-[#333333] rounded-full shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-300 flex items-center justify-center group"
+          className="fixed bottom-22 right-7 sm:bottom-24 sm:right-8 z-50 p-4 bg-black text-white rounded-full shadow-xl hover:shadow-2xl hover:bg-[#E5A3B8] hover:text-black hover:-translate-y-1 transition-all duration-300 flex items-center justify-center group"
         >
-          <Sparkles size={28} className="group-hover:animate-pulse" />
+          <Sparkles size={24} className="group-hover:animate-pulse" />
         </button>
       )}
 
       {/* Chat Window */}
-      {isOpen && (
-        <div className="fixed bottom-8 right-4 sm:right-8 w-[90vw] sm:w-96 h-[500px] bg-white rounded-2xl shadow-2xl flex flex-col z-50 border border-gray-100 overflow-hidden transform transition-all duration-300">
-          
-          {/* Chat Header */}
-          <div className="bg-[#333333] p-4 flex justify-between items-center">
-            <div className="flex items-center gap-2 text-white">
-              <Sparkles size={20} className="text-[#F8C8DC]" />
-              <div>
-                <h3 className="font-serif font-medium text-lg leading-tight">IA Styliste</h3>
-                <p className="text-xs text-gray-300 font-light">En ligne</p>
+      <div 
+        className={`fixed bottom-22 right-7 sm:bottom-24 sm:right-8 w-[calc(100vw-2rem)] sm:w-[380px] bg-white rounded-xl shadow-2xl flex flex-col z-50 border border-gray-200 overflow-hidden transform transition-all duration-500 ease-[cubic-bezier(0.25,1,0.5,1)] origin-bottom-right
+        ${isOpen ? 'scale-100 opacity-100 h-[550px]' : 'scale-0 opacity-0 h-0 pointer-events-none'}`}
+      >
+        
+        {/* Chat Header */}
+        <div className="bg-black p-4 flex justify-between items-center shrink-0">
+          <div className="flex items-center gap-3 text-white">
+            <div className="w-8 h-8 rounded-full bg-[#333333] flex items-center justify-center border border-gray-700">
+              <Sparkles size={16} className="text-[#E5A3B8]" />
+            </div>
+            <div>
+              <h3 className="font-serif font-medium text-base tracking-wide leading-tight">IA Styliste</h3>
+              <p className="text-[10px] text-[#E5A3B8] uppercase tracking-widest font-medium">So Chic Lady</p>
+            </div>
+          </div>
+          <button onClick={() => setIsOpen(false)} className="text-gray-400 hover:text-white transition-colors p-1">
+            <X size={20} />
+          </button>
+        </div>
+
+        {/* Chat Messages */}
+        <div className="flex-1 overflow-y-auto p-4 space-y-5 bg-[#FAFAFA]">
+          {messages.map((msg, index) => (
+            <div key={index} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+              <div className={`max-w-[85%] p-3.5 rounded-2xl text-sm leading-relaxed shadow-sm ${
+                msg.role === 'user' 
+                  ? 'bg-black text-white rounded-br-sm' 
+                  : 'bg-white border border-gray-100 text-gray-700 rounded-bl-sm'
+              }`}>
+                {/* Simple render to handle Gemini's potential asterisks/markdown gracefully */}
+                <span dangerouslySetInnerHTML={{ __html: msg.content.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') }} />
               </div>
             </div>
-            <button onClick={() => setIsOpen(false)} className="text-gray-300 hover:text-white transition-colors">
-              <X size={20} />
-            </button>
-          </div>
-
-          {/* Chat Messages */}
-          <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-[#FAFAFA]">
-            {messages.map((msg, index) => (
-              <div key={index} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                <div className={`max-w-[80%] p-3 rounded-2xl text-sm leading-relaxed shadow-sm ${
-                  msg.role === 'user' 
-                    ? 'bg-[#333333] text-white rounded-tr-none' 
-                    : 'bg-white border border-gray-100 text-gray-700 rounded-tl-none'
-                }`}>
-                  {msg.content}
-                </div>
+          ))}
+          
+          {/* Typing Indicator */}
+          {isLoading && (
+            <div className="flex justify-start">
+              <div className="bg-white border border-gray-100 rounded-2xl rounded-bl-sm p-4 flex gap-1.5 shadow-sm">
+                <span className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce"></span>
+                <span className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></span>
+                <span className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.4s' }}></span>
               </div>
-            ))}
-            <div ref={messagesEndRef} />
-          </div>
-
-          {/* Chat Input Input */}
-          <form onSubmit={handleSendMessage} className="p-3 bg-white border-t border-gray-100 flex items-center gap-2">
-            <input
-              type="text"
-              value={inputMessage}
-              onChange={(e) => setInputMessage(e.target.value)}
-              placeholder="Écrivez votre message..."
-              className="flex-1 py-2 px-4 bg-gray-50 border border-gray-200 rounded-full text-sm focus:outline-none focus:ring-1 focus:ring-[#F8C8DC] transition-all"
-            />
-            <button 
-              type="submit" 
-              disabled={!inputMessage.trim()}
-              className="p-2 bg-[#333333] text-white rounded-full hover:bg-black disabled:opacity-50 transition-colors"
-            >
-              <Send size={18} />
-            </button>
-          </form>
+            </div>
+          )}
+          <div ref={messagesEndRef} />
         </div>
-      )}
+
+        {/* Chat Input */}
+        <form onSubmit={handleSendMessage} className="p-3 bg-white border-t border-gray-100 flex items-center gap-2 shrink-0">
+          <input
+            type="text"
+            value={inputMessage}
+            onChange={(e) => setInputMessage(e.target.value)}
+            placeholder="Je cherche une robe pour un mariage..."
+            className="flex-1 py-3 px-4 bg-gray-50 border border-gray-200 rounded-full text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:border-black focus:ring-1 focus:ring-black transition-all"
+            disabled={isLoading}
+          />
+          <button 
+            type="submit" 
+            disabled={!inputMessage.trim() || isLoading}
+            className="p-3 bg-black text-white rounded-full hover:bg-[#E5A3B8] hover:text-black disabled:opacity-50 disabled:hover:bg-black disabled:hover:text-white transition-colors shrink-0"
+          >
+            <Send size={18} className="ml-0.5" />
+          </button>
+        </form>
+      </div>
     </>
   );
 };
