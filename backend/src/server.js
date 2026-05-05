@@ -8,6 +8,7 @@ import { notFound, errorHandler } from './middleware/errorMiddleware.js';
 import productRoutes from './routes/productRoutes.js';
 import userRoutes from './routes/userRoutes.js';
 import aiRoutes from './routes/aiRoutes.js';
+import configRoutes from './routes/configRoutes.js';
 
 // Load environment variables
 dotenv.config();
@@ -46,6 +47,9 @@ app.use('/api/users', userRoutes);
 
 // Any request that goes to /api/ai will be handled by aiRoutes
 app.use('/api/ai', aiRoutes);
+
+// Any request that goes to /api/config will be handled by configRoutes
+app.use('/api/config', configRoutes);
 
 // Custom Error Middleware (Must be placed after all routes)
 app.use(notFound);
