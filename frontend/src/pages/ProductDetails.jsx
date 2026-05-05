@@ -9,6 +9,9 @@ import { addToCart } from '../store/slices/cartSlice';
 import { useGetProductDetailsQuery, useGetProductsQuery } from '../store/slices/productsApiSlice';
 import NotFoundPage from './NotFoundPage';
 
+// Import du nouveau composant IA
+import CompleteTheLook from '../components/product/CompleteTheLook';
+
 const ProductDetails = () => {
   const { id: productId } = useParams();
   const dispatch = useDispatch();
@@ -16,7 +19,7 @@ const ProductDetails = () => {
   // Fetch current product
   const { data: product, isLoading, error } = useGetProductDetailsQuery(productId);
   
-  // Fetch ALL products for "Related" and "Buy With It" sections
+  // Fetch ALL products for "Related" section
   const { data: allProducts } = useGetProductsQuery();
 
   // --- COMPONENT STATE ---
@@ -46,10 +49,8 @@ const ProductDetails = () => {
   if (error || !product) return <NotFoundPage />;
 
   // --- CROSS-SELLING LOGIC ---
-  // Get 4 related products (excluding the current one)
+  // Get 4 related products (excluding the current one) for the fallback section
   const relatedProducts = allProducts?.filter(p => p._id !== productId).slice(0, 4) || [];
-  // Get 1 complementary product for "Buy with it"
-  const buyWithItProduct = allProducts?.find(p => p._id !== productId && p.category !== product.category);
 
   // --- ACTIONS ---
   const handleAddToCart = () => {
@@ -60,8 +61,7 @@ const ProductDetails = () => {
     
     const productToAdd = { ...product, id: product._id || product.id };
 
-    // Since our original cartSlice hardcoded quantity to 1, we will loop the dispatch 
-    // to safely add the correct quantity without breaking your existing Redux logic!
+    // Safely loop the dispatch to handle quantity
     for (let i = 0; i < quantity; i++) {
       dispatch(addToCart({ product: productToAdd, size: selectedSize }));
     }
@@ -91,7 +91,6 @@ const ProductDetails = () => {
           <div className="space-y-4 sticky top-28 h-fit">
             <div className="aspect-[3/4] w-full bg-gray-100 overflow-hidden relative group rounded-sm shadow-sm">
               <img src={product.image} alt={product.name} className="w-full h-full object-cover" />
-              {/* Optional: Add hover zoom effect here later */}
             </div>
             {/* Thumbnails */}
             <div className="grid grid-cols-4 gap-4">
@@ -177,31 +176,14 @@ const ProductDetails = () => {
               </button>
             </div>
 
-            {/* AI Call to Action */}
+            {/* AI Call to Action Updated */}
             <div className="bg-[#F8C8DC]/10 p-4 border border-[#F8C8DC]/30 flex items-start gap-4 mb-8 rounded-sm">
               <div className="bg-white p-2 rounded-full text-[#E5A3B8] shadow-sm"><Sparkles size={18} /></div>
               <div>
                 <h4 className="text-[#333333] font-medium text-sm">IA Styliste Privée</h4>
-                <p className="text-xs text-gray-500 mt-1 leading-relaxed">Besoin d'aide ? Demandez à notre IA comment accessoiriser cette pièce pour votre prochaine soirée.</p>
+                <p className="text-xs text-gray-500 mt-1 leading-relaxed">Faites défiler vers le bas pour découvrir la tenue complète composée sur-mesure par notre IA pour s'accorder avec cette pièce.</p>
               </div>
             </div>
-
-            {/* --- BUY WITH IT SECTION --- */}
-            {buyWithItProduct && (
-              <div className="mb-8 p-4 border border-gray-200 rounded-sm bg-white shadow-sm">
-                <h4 className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-4">Complétez le look</h4>
-                <div className="flex items-center gap-4">
-                  <img src={buyWithItProduct.image} alt={buyWithItProduct.name} className="w-16 h-20 object-cover rounded-sm" />
-                  <div className="flex-1">
-                    <Link to={`/product/${buyWithItProduct._id}`} className="text-sm font-medium text-[#333333] hover:text-[#E5A3B8]">{buyWithItProduct.name}</Link>
-                    <p className="text-xs text-gray-500 mt-1">{buyWithItProduct.price.toFixed(2)} €</p>
-                  </div>
-                  <Link to={`/product/${buyWithItProduct._id}`} className="text-xs border border-[#333333] text-[#333333] px-3 py-2 rounded-sm hover:bg-[#333333] hover:text-white transition-colors">
-                    Voir
-                  </Link>
-                </div>
-              </div>
-            )}
 
             {/* Trust Badges */}
             <div className="border-t border-gray-200">
@@ -212,8 +194,8 @@ const ProductDetails = () => {
           </div>
         </div>
 
-        {/* --- TABS SECTION (Desc, Size, FAQ, Reviews, Video) --- */}
-        <div className="mb-24 border-t border-gray-200 pt-10">
+        {/* --- TABS SECTION --- */}
+        <div className="border-t border-gray-200 pt-10">
           
           {/* Tab Headers */}
           <div className="flex flex-wrap gap-6 md:gap-12 border-b border-gray-200 pb-4 mb-8">
@@ -343,9 +325,12 @@ const ProductDetails = () => {
           </div>
         </div>
 
-        {/* --- RELATED PRODUCTS GRID --- */}
+        {/* --- AI COMPLETE THE LOOK --- */}
+        {/* <CompleteTheLook productId={productId} /> */}
+
+        {/* --- RELATED PRODUCTS GRID (Fallback/Standard View) --- */}
         {relatedProducts.length > 0 && (
-          <div className="pt-10 border-t border-gray-200">
+          <div className="pt-16 border-t border-gray-200 mt-16">
             <div className="flex justify-between items-end mb-8">
               <h2 className="text-2xl font-serif text-[#333333]">Vous aimerez aussi</h2>
               <Link to="/categories" className="text-sm font-medium text-gray-500 hover:text-[#E5A3B8] uppercase tracking-wider">Voir tout</Link>

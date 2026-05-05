@@ -69,3 +69,83 @@ export const getAiStylistResponse = async (req, res, next) => {
         });
     }
 };
+
+
+// @desc    Get AI "Complete the Look" recommendations
+// @route   GET /api/ai/recommendations/:productId
+// @access  Public
+export const getCompleteTheLook = async (req, res) => {
+    try {
+        const mainProductId = req.params.productId;
+
+        // 1. Fetch the main product
+        const mainProduct = await Product.findById(mainProductId);
+        if (!mainProduct) return res.status(404).json({ message: "Produit introuvable" });
+
+        // 2. Fetch all OTHER in-stock products
+        const otherProducts = await Product.find({ 
+            _id: { $ne: mainProductId }, 
+            inStock: true 
+        }).select('_id name category color description');
+
+        // If we don't have enough products, just return random ones (fallback)
+        if (otherProducts.length < 3) {
+            return res.json(otherProducts);
+        }
+
+        // 3. Format inventory for Gemini (Including the MongoDB _id)
+        const inventoryContext = otherProducts.map(p =>
+            `ID: ${p._id} | Nom: ${p.name} | Catégorie: ${p.category} | Desc: ${p.description}`
+        ).join('\n');
+
+        // 4. Initialize Gemini (Forcing JSON Output!)
+        const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+        const model = genAI.getGenerativeModel({ 
+            model: "gemini-2.5-flash",
+            generationConfig: {
+                // This is a magic setting: It forces Gemini to return valid JSON!
+                responseMimeType: "application/json",
+            }
+        });
+
+        const prompt = `
+            Tu es un styliste de mode expert pour la marque 'So Chic Lady'.
+            La cliente regarde actuellement cet article :
+            Nom : ${mainProduct.name}
+            Catégorie : ${mainProduct.category}
+            Description : ${mainProduct.description}
+
+            Voici le reste de notre inventaire :
+            ${inventoryContext}
+
+            TA MISSION : Choisis EXACTEMENT 3 articles dans cet inventaire qui s'accordent parfaitement avec l'article de la cliente pour créer une tenue complète et chic (par exemple, si elle regarde un bas, propose un haut et des accessoires).
+            
+            Tu DOIS renvoyer UNIQUEMENT un tableau JSON contenant les 3 IDs. 
+            Format attendu : ["ID_1", "ID_2", "ID_3"]
+        `;
+
+        // 5. Ask Gemini
+        const result = await model.generateContent(prompt);
+        const responseText = result.response.text();
+        
+        // Parse the JSON array returned by Gemini
+        const recommendedIds = JSON.parse(responseText);
+
+        // 6. Fetch the full product objects from the database using those IDs
+        const recommendedProducts = await Product.find({
+            _id: { $in: recommendedIds }
+        });
+
+        res.json(recommendedProducts);
+
+    } catch (error) {
+        console.error('AI Recommendation Error:', error);
+        // Fallback: If Gemini fails, just return 3 random products
+        const fallbackProducts = await Product.aggregate([
+            { $match: { inStock: true } },
+            { $sample: { size: 3 } }
+        ]);
+        res.json(fallbackProducts);
+    }
+};
+
