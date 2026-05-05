@@ -55,7 +55,7 @@ const HeroSection = () => {
               <span className="text-xs font-bold tracking-widest uppercase text-[#333333]">Nouvelle Collection</span>
             </div>
 
-            <h1 className="text-5xl sm:text-6xl lg:text-7xl xl:text-8xl font-serif text-[#333333] leading-[1.05] tracking-tight">
+            <h1 className="text-5xl sm:text-6xl lg:text-6xl xl:text-6xl font-serif text-[#333333] leading-[1.05] tracking-tight">
               Révélez votre <br />
               <div className="relative inline-block mt-2">
                 <span className="relative z-10 italic font-light text-[#E5A3B8] pr-4">allure.</span>

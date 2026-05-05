@@ -1,4 +1,4 @@
-const API_KEY = "AIzaSyDDw_ImD46DN7koTxjGVTtGmcqDcXAeDdQ"; 
+const API_KEY = "something that is not real but looks like a real API key"; 
 
 async function listAllowedModels() {
   console.log("Asking Google which models are unlocked for this key...");

@@ -4,6 +4,7 @@ import {
   Package,
   ShoppingCart,
   Users,
+  Settings, // <-- Import the Settings icon
   Plus,
   Edit,
   Trash2,
@@ -14,6 +15,10 @@ import {
   useDeleteProductMutation,
 } from "../../store/slices/productsApiSlice";
 import { Link } from "react-router-dom";
+
+// Importez votre nouvelle page de configuration de la boutique
+// Adaptez le chemin selon votre structure de dossiers
+import StoreConfigPage from "./StoreConfigPage"; 
 
 const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState("products");
@@ -56,6 +61,7 @@ const AdminDashboard = () => {
     }
   };
 
+  // --- NAVIGATION ITEMS ---
   const NAV_ITEMS = [
     {
       id: "overview",
@@ -65,6 +71,8 @@ const AdminDashboard = () => {
     { id: "products", label: "Produits", icon: <Package size={20} /> },
     { id: "orders", label: "Commandes", icon: <ShoppingCart size={20} /> },
     { id: "users", label: "Clients", icon: <Users size={20} /> },
+    // Ajout du nouvel onglet pour la configuration Boutique & IA
+    { id: "config", label: "Boutique & IA", icon: <Settings size={20} /> },
   ];
 
   return (
@@ -190,7 +198,6 @@ const AdminDashboard = () => {
                           </td>
                           <td className="px-6 py-4 text-right">
                             <div className="flex justify-end gap-3">
-                              {/* We will wire this Edit button up next! */}
                               <Link
                                 to={`/admin/product/${product._id}/edit`}
                                 className="text-gray-400 hover:text-[#333333] transition-colors inline-block"
@@ -217,6 +224,9 @@ const AdminDashboard = () => {
             </div>
           </div>
         )}
+
+        {/* CONFIG TAB (Store & AI Settings) */}
+        {activeTab === "config" && <StoreConfigPage />}
 
         {/* PLACEHOLDERS */}
         {activeTab === "overview" && (

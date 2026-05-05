@@ -18,6 +18,7 @@ import ProductEditPage from './pages/admin/ProductEditPage';
 // Admin
 import AdminRoute from './components/routing/AdminRoute'; // <-- 1. Import wrapper
 import AdminDashboard from './pages/admin/AdminDashboard'; // <-- 2. Import dashboard
+import StoreConfigPage from './pages/admin/StoreConfigPage';
 
 function App() {
   return (
@@ -40,6 +41,7 @@ function App() {
             <Route path="" element={<AdminRoute />}>
               <Route path="/admin/dashboard" element={<AdminDashboard />} />
               <Route path="/admin/product/:id/edit" element={<ProductEditPage />} />
+              <Route path="/admin/settings" element={<StoreConfigPage />} />
             </Route>
 
             <Route path="*" element={<NotFoundPage />} />
